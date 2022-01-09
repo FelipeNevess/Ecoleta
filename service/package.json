@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev:server": "CHOKIDAR_USEPOLLING=true ts-node-dev --transpile-only --ignore-watch node_modules --respawn src/server.ts",
-    "knex:migrate": "knex --knexfile knexfile.ts migrate:latest"
+    "knex:migrate": "knex --knexfile knexfile.ts migrate:latest",
+    "knex:seed": "knex --knexfile knexfile.ts seed:run"
   },
   "keywords": [],
   "author": "",

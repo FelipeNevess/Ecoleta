@@ -2,7 +2,7 @@ import { Router } from "express";
 
 const router = Router();
 
-router.get('/', (req, res) => {
+router.get('/items', (req, res) => {
   return res.json({
     hello: "Hello world"
   })

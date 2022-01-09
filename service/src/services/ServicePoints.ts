@@ -44,6 +44,20 @@ class ServicePoints {
   
     return res.status(201).json({ point_id, ...point});
   }
+
+  async show(req: Request, res: Response) {
+    const { id } =req.params;
+
+    const point = await connection('points').where('id', id).first();
+
+    if (!point) {
+      return res.status(400).json({
+        message: 'collection point not found'
+      });
+    }
+
+    return res.status(200).json(point);
+  }
 }
 
 export { ServicePoints }

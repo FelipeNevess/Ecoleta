@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 
 exports.up = async (knex: Knex) => {
   return knex.schema.createTable('points', table => {
-    table.increments('id').unsigned().primary();
+    table.increments('id').primary();
     table.string('image').notNullable();
     table.string('name').notNullable();
     table.string('email').notNullable();

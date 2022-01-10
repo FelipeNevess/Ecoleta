@@ -12,5 +12,6 @@ router.get('/items', getItems.index);
 
 router.post('/points', servicePoints.createPoint);
 router.get('/points/:id', servicePoints.show);
+router.get('/points', servicePoints.indexPoints);
 
 export { router }

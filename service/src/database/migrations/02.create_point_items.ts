@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 
 exports.up = async (knex: Knex) => {
   return knex.schema.createTable('point_items', table => {
-    table.increments('id').unsigned().primary();
+    table.increments('id').primary();
   
     table.integer('point_id')
       .notNullable()

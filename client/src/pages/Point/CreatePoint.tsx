@@ -1,20 +1,66 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, ChangeEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import axios from 'axios';
+
 import { api } from '../../api/api';
 
 import { FiArrowLeft } from 'react-icons/fi';
+import logo from '../../assets/logo.svg';
 
 import './styles.css';
 
-import logo from '../../assets/logo.svg';
+interface Iitems {
+  id: number;
+  title: string;
+  image_url: string;
+}
+
+interface IUfs {
+  sigla: string;
+}
+
+interface IUfsCity {
+  nome: string;
+}
 
 const CreatePoint: FC = () => {
-  const [items, setIems] = useState([]);
+  const [items, setIems] = useState<Iitems[]>([]);
+  const [ufs, setUfs] = useState<string[]>([]);
+  const [getCity, setGetCity] = useState<string[]>([]);
+
+  const [selectChange, setSelectChange] = useState('0');
 
   useEffect(() => {
     api.get('items').then(res => setIems(res.data));
   }, []);
+
+  useEffect(() => {
+    axios.get<IUfs[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados')
+    .then((res) => {
+      const moveUfs = res.data.map(uf => uf.sigla);
+
+      setUfs(moveUfs);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (selectChange === 'o') {
+      return;
+    }
+
+    axios.get<IUfsCity[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ selectChange }/municipios`)
+    .then((res) => {
+      const ufCitys = res.data.map((city) => city.nome);
+
+      setGetCity(ufCitys);
+    });
+  }, [selectChange]);
+
+  const hadleSelectChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const { target: { value } } = event;
+    setSelectChange(value);
+  }
 
   return (
     <div id="page-create-point">
@@ -88,8 +134,15 @@ const CreatePoint: FC = () => {
             <div className="field">
               <label htmlFor="uf">Estado (UF)</label>
 
-              <select name="uf" id="uf">
+              <select name="uf" id="uf" onChange={ hadleSelectChange } value={ selectChange } >
                 <option value="0">Selecione um UF</option>
+                {
+                  ufs.map(uf => {
+                    return (
+                      <option key={ uf } value={ uf }>{ uf }</option>
+                    );
+                  })
+                }
               </select>
             </div>
 
@@ -98,6 +151,13 @@ const CreatePoint: FC = () => {
 
               <select name="city" id="city">
                 <option value="0">Selecione uma cidade</option>
+                {
+                  getCity.map(uf => {
+                    return (
+                      <option key={ uf } value={ uf }>{ uf }</option>
+                    );
+                  })
+                }
               </select>
             </div>
           </div>
@@ -115,7 +175,7 @@ const CreatePoint: FC = () => {
               items.map(item => {
                 return (
                   <li key={ item.id }>
-                    <img src={ item.image_url } alt="Teste" />
+                    <img src={ item.image_url } alt={ item.title } />
                     <span>{ item.title }</span>
                   </li>
                 );

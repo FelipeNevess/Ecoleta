@@ -1,5 +1,7 @@
-import { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { api } from '../../api/api';
 
 import { FiArrowLeft } from 'react-icons/fi';
 
@@ -8,6 +10,12 @@ import './styles.css';
 import logo from '../../assets/logo.svg';
 
 const CreatePoint: FC = () => {
+  const [items, setIems] = useState([]);
+
+  useEffect(() => {
+    api.get('items').then(res => setIems(res.data));
+  }, []);
+
   return (
     <div id="page-create-point">
       <header>
@@ -66,6 +74,16 @@ const CreatePoint: FC = () => {
             <span>Selecione o endereço no mapa</span>
           </legend>
 
+          <MapContainer center={ [-5.1847959, -42.7792161] } zoom="23">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            
+
+            <Marker position={ [-5.1847959, -42.7792161] } />
+          </MapContainer>
+
           <div className="field-group">
             <div className="field">
               <label htmlFor="uf">Estado (UF)</label>
@@ -93,10 +111,16 @@ const CreatePoint: FC = () => {
           </legend>
 
           <ul className="items-grid">
-            <li>
-              <img src="http://localhost:3333/uploads/oleo.svg" alt="Teste" />
-              <span>Oléo de Cozinha</span>
-            </li>
+            {
+              items.map(item => {
+                return (
+                  <li key={ item.id }>
+                    <img src={ item.image_url } alt="Teste" />
+                    <span>{ item.title }</span>
+                  </li>
+                );
+              })
+            }
           </ul>
         </fieldset>
 

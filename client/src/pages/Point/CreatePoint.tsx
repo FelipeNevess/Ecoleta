@@ -1,6 +1,6 @@
-import React, { FC, ChangeEvent, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { FC, ChangeEvent, useEffect, useState, FormEvent } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 import { api } from '../../api/api';
@@ -28,10 +28,17 @@ const CreatePoint: FC = (): JSX.Element => {
   const [items, setIems] = useState<Iitems[]>([]);
   const [ufs, setUfs] = useState<string[]>([]);
   const [getCity, setGetCity] = useState<string[]>([]);
+  const [selectedItems, setSelectdItems] = useState<number[]>([]);
 
   const [selectChange, setSelectChange] = useState('0');
   const [selectChangeCity, setSelectChangeCity] = useState('0');
   const [position, setPosition] = useState<[number, number]>([0, 0]);
+
+  const [changeInputValues, SetChangeInputValues] = useState({
+    name: '',
+    email: '',
+    whatsapp: '',
+  });
 
   useEffect(() => {
     api.get('items').then(res => setIems(res.data));
@@ -69,7 +76,7 @@ const CreatePoint: FC = (): JSX.Element => {
     setSelectChangeCity(value);
   }
 
-  function LocationMarker() {
+  const LocationMarker = () => {
     const map = useMapEvents({
       click() {
         map.locate()
@@ -86,7 +93,54 @@ const CreatePoint: FC = (): JSX.Element => {
       </Marker>
     )
   }
+
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value, name } = event.target;
+
+    SetChangeInputValues({
+      ...changeInputValues,
+      [name]: value
+    })
+  }
+
+  const selectItem = (id: number) => {
+    const indexItem = selectedItems.findIndex(itemId => itemId === id);
+
+    if (indexItem >= 0) {
+      const filteredItems = selectedItems.filter(itemId => itemId !== id);
+
+      setSelectdItems(filteredItems);
+
+      return;
+    }
+
+    setSelectdItems([...selectedItems, id]);
+  }
   
+  const handleSumit = async (event: FormEvent) => {
+    event.preventDefault();
+
+    const { name, email, whatsapp } = changeInputValues;
+    const uf = selectChange;
+    const city = selectChangeCity;
+    const [latitude, longitude] = position;
+    const items = selectedItems;
+
+    const data = {
+      name,
+      email,
+      whatsapp,
+      uf,
+      city,
+      latitude,
+      longitude,
+      items
+    }
+
+    await api.post('points', data);
+
+    alert('Ponto de coleta cadatrado com sucesso!!');
+  }
 
   return (
     <div id="page-create-point">
@@ -100,7 +154,7 @@ const CreatePoint: FC = (): JSX.Element => {
 
       </header>
       
-      <form>
+      <form onSubmit={ handleSumit }>
         <h1>Cadastro do <br /> ponto de coleta</h1>
 
         <fieldset>
@@ -114,6 +168,7 @@ const CreatePoint: FC = (): JSX.Element => {
               type="text"
               name="name"
               id="name"
+              onChange={ handleInputChange }
             >
             </input>
           </div>
@@ -125,6 +180,7 @@ const CreatePoint: FC = (): JSX.Element => {
                 type="email"
                 name="email"
                 id="email"
+                onChange={ handleInputChange }
               >
               </input>
             </div>
@@ -135,6 +191,7 @@ const CreatePoint: FC = (): JSX.Element => {
                 type="text"
                 name="whatsapp"
                 id="whatsapp"
+                onChange={ handleInputChange }
               >
               </input>
             </div>
@@ -202,7 +259,11 @@ const CreatePoint: FC = (): JSX.Element => {
             {
               items.map(item => {
                 return (
-                  <li key={ item.id }>
+                  <li
+                    key={ item.id }
+                    onClick={ () => selectItem(item.id) }
+                    className={ selectedItems.includes(item.id) ? 'selected': '' }
+                  >
                     <img src={ item.image_url } alt={ item.title } />
                     <span>{ item.title }</span>
                   </li>

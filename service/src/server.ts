@@ -6,8 +6,8 @@ import { router } from './routes';
 import path from 'path';
 
 const app = express();
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
 app.use(router);
 

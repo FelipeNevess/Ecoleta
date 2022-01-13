@@ -1,9 +1,9 @@
 {
   "name": "ecoleta",
   "version": "1.0.0",
-  "description": "",
+  "description": "Pesquise e crie um ponto de coleta",
   "keywords": [],
-  "author": "",
+  "author": "Felipe_Neves/Rocketseat",
   "license": "ISC",
   "dependencies": {}
 }

@@ -1,6 +1,6 @@
 import React, { FC, ChangeEvent, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import axios from 'axios';
 
 import { api } from '../../api/api';
@@ -24,12 +24,14 @@ interface IUfsCity {
   nome: string;
 }
 
-const CreatePoint: FC = () => {
+const CreatePoint: FC = (): JSX.Element => {
   const [items, setIems] = useState<Iitems[]>([]);
   const [ufs, setUfs] = useState<string[]>([]);
   const [getCity, setGetCity] = useState<string[]>([]);
 
   const [selectChange, setSelectChange] = useState('0');
+  const [selectChangeCity, setSelectChangeCity] = useState('0');
+  const [position, setPosition] = useState<[number, number]>([0, 0]);
 
   useEffect(() => {
     api.get('items').then(res => setIems(res.data));
@@ -45,7 +47,7 @@ const CreatePoint: FC = () => {
   }, []);
 
   useEffect(() => {
-    if (selectChange === 'o') {
+    if (selectChange === '0') {
       return;
     }
 
@@ -62,6 +64,30 @@ const CreatePoint: FC = () => {
     setSelectChange(value);
   }
 
+  const hadleSelectChangeCity = (event: ChangeEvent<HTMLSelectElement>) => {
+    const { target: { value } } = event;
+    setSelectChangeCity(value);
+  }
+
+  function LocationMarker() {
+    const map = useMapEvents({
+      click() {
+        map.locate()
+      },
+      locationfound(e) {
+        setPosition([e.latlng.lat, e.latlng.lng])
+        map.flyTo(e.latlng, map.getZoom())
+      },
+    })
+  
+    return position === null ? null : (
+      <Marker position={position}>
+        <Popup>You are here</Popup>
+      </Marker>
+    )
+  }
+  
+
   return (
     <div id="page-create-point">
       <header>
@@ -71,6 +97,7 @@ const CreatePoint: FC = () => {
           <FiArrowLeft />
           Voltar para home
         </Link>
+
       </header>
       
       <form>
@@ -120,14 +147,15 @@ const CreatePoint: FC = () => {
             <span>Selecione o endereço no mapa</span>
           </legend>
 
-          <MapContainer center={ [-5.1847959, -42.7792161] } zoom="23">
+          <MapContainer
+            center={ [-1, -1] }
+            zoom={ 15 }
+          >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            
-
-            <Marker position={ [-5.1847959, -42.7792161] } />
+            <LocationMarker />
           </MapContainer>
 
           <div className="field-group">
@@ -149,7 +177,7 @@ const CreatePoint: FC = () => {
             <div className="field">
               <label htmlFor="uf">Cidade</label>
 
-              <select name="city" id="city">
+              <select name="city" id="city" onChange={ hadleSelectChangeCity } value={ selectChangeCity } >
                 <option value="0">Selecione uma cidade</option>
                 {
                   getCity.map(uf => {

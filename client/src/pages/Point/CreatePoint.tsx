@@ -205,8 +205,8 @@ const CreatePoint: FC = (): JSX.Element => {
           </legend>
 
           <MapContainer
-            center={ [-1, -1] }
-            zoom={ 15 }
+            center={ [-5.1886233, -42.7721921] }
+            zoom={ 13 }
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

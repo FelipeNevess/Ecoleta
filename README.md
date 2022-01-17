@@ -34,3 +34,5 @@ _Eslint configurado_ com prettier
 O banco está configurando com método **up** e **down** que possibilita voltar atrás caso aconteça algum tipo de problemas ou bugs
 
 Caso o arquivo **database.sqlite** da pasta **service/src/database** seja apagado, o comando **knex:migrate** ira criá lo novamente e, o comando **knex:seed** ira adicionar os itens necessário na tabela items
+
+Aplicação no ar --> https://ecoletan.netlify.app/

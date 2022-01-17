@@ -1,8 +1,9 @@
 import React, { FC, ChangeEvent, useEffect, useState, FormEvent } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { Link, useNavigate  } from 'react-router-dom';
+import Dropzone from '../../components/Dropzone/Dropzone';
 
+import axios from 'axios';
 import { api } from '../../api/api';
 
 import { FiArrowLeft } from 'react-icons/fi';
@@ -24,6 +25,7 @@ interface IUfsCity {
   nome: string;
 }
 
+
 const CreatePoint: FC = (): JSX.Element => {
   const [items, setIems] = useState<Iitems[]>([]);
   const [ufs, setUfs] = useState<string[]>([]);
@@ -33,12 +35,15 @@ const CreatePoint: FC = (): JSX.Element => {
   const [selectChange, setSelectChange] = useState('0');
   const [selectChangeCity, setSelectChangeCity] = useState('0');
   const [position, setPosition] = useState<[number, number]>([0, 0]);
+  const [selectUpload, setSelectUpload] = useState<File>();
 
   const [changeInputValues, SetChangeInputValues] = useState({
     name: '',
     email: '',
     whatsapp: '',
   });
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get('items').then(res => setIems(res.data));
@@ -126,20 +131,26 @@ const CreatePoint: FC = (): JSX.Element => {
     const [latitude, longitude] = position;
     const items = selectedItems;
 
-    const data = {
-      name,
-      email,
-      whatsapp,
-      uf,
-      city,
-      latitude,
-      longitude,
-      items
+    const data = new FormData();
+
+    data.append('name', name);
+    data.append('email', email);
+    data.append('whatsapp', whatsapp);
+    data.append('uf', uf);
+    data.append('city', city);
+    data.append('latitude', String(latitude));
+    data.append('longitude', String(longitude));
+    data.append('items', items.join(','));
+
+    if (selectUpload) {
+      data.append('image', selectUpload);
     }
 
     await api.post('points', data);
 
     alert('Ponto de coleta cadatrado com sucesso!!');
+
+    navigate('/');
   }
 
   return (
@@ -156,6 +167,8 @@ const CreatePoint: FC = (): JSX.Element => {
       
       <form onSubmit={ handleSumit }>
         <h1>Cadastro do <br /> ponto de coleta</h1>
+
+        <Dropzone selectePropUpload={ setSelectUpload } />
 
         <fieldset>
           <legend>

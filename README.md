@@ -28,7 +28,7 @@ _Eslint configurado_ com prettier
 
 **Como usar ?**
 
-- Entre na pasta service e rode o comando **npm** ou **yarn dev:server**
+- Entre na pasta service e rode o comando **npm** ou **yarn start**
 - Entre na pasta client e rode o comando **npm** ou **yarn dev**
 
 O banco está configurando com método **up** e **down** que possibilita voltar atrás caso aconteça algum tipo de problemas ou bugs
